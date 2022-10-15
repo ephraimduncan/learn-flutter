@@ -8,8 +8,10 @@ class XylophoneApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
+        backgroundColor: Colors.black,
         body: SafeArea(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch, // TODO: Review
             children: [
               Sound(
                 color: Colors.red,
@@ -53,18 +55,23 @@ class Sound extends StatelessWidget {
 
   const Sound({Key key, this.sound, this.color}) : super(key: key);
 
+  void playSound() async {
+    final player = AudioPlayer();
+    await player.play(AssetSource('note$sound.wav'));
+  }
+
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-      style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(color),
+    return Expanded(
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+        ),
+        onPressed: () async {
+          playSound();
+        },
+        child: null,
       ),
-      onPressed: () async {
-        final player = AudioPlayer();
-
-        await player.play(AssetSource('note$sound.wav'));
-      },
-      child: null,
     );
   }
 }
