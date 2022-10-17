@@ -1,6 +1,9 @@
+import 'package:flutter/widgets.dart';
 import 'package:quizzler/question.dart';
 
 class QuizBrain {
+  int _questionNumber = 0;
+
   final List<Question> _questionBank = [
     Question('Some cats are actually allergic to humans', true),
     Question('You can lead a cow down stairs but not up stairs.', false),
@@ -33,11 +36,25 @@ class QuizBrain {
     return _questionBank.length;
   }
 
-  String getQuestionText(int questionNumber) {
-    return _questionBank[questionNumber].questionText;
+  void nextQuestion() {
+    if (_questionNumber < _questionBank.length - 1) {
+      _questionNumber++;
+    }
   }
 
-  bool getQuestionAnswer(int questionNumber) {
-    return _questionBank[questionNumber].questionAnswer;
+  bool isFinished(List<Widget> scoreKeeper) {
+    return _questionBank.length == scoreKeeper.length + 1;
+  }
+
+  void reset() {
+    _questionNumber = 0;
+  }
+
+  String getQuestionText() {
+    return _questionBank[_questionNumber].questionText;
+  }
+
+  bool getQuestionAnswer() {
+    return _questionBank[_questionNumber].questionAnswer;
   }
 }

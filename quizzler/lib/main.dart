@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quizzler/quiz_brain.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 void main() {
   runApp(const Quizzler());
@@ -34,7 +35,36 @@ class QuizPage extends StatefulWidget {
 class _QuizPageState extends State<QuizPage> {
   List<Widget> scoreKeeper = [];
 
-  int questionNumber = 0;
+  void checkAnswer(bool userPickedAnswer) {
+    bool correctAnswer = quizBrain.getQuestionAnswer();
+
+    setState(() {
+      if (quizBrain.isFinished(scoreKeeper)) {
+        Alert(context: context, title: "Quizzler", desc: "Quiz is complete")
+            .show();
+
+        scoreKeeper = [];
+        quizBrain.reset();
+      } else {
+        if (correctAnswer == userPickedAnswer) {
+          scoreKeeper.add(
+            const Icon(
+              Icons.check,
+              color: Colors.green,
+            ),
+          );
+        } else {
+          scoreKeeper.add(
+            const Icon(
+              Icons.close,
+              color: Colors.red,
+            ),
+          );
+        }
+      }
+      quizBrain.nextQuestion();
+    });
+  }
 
   QuizBrain quizBrain = QuizBrain();
 
@@ -47,7 +77,7 @@ class _QuizPageState extends State<QuizPage> {
           flex: 6,
           child: Center(
             child: Text(
-              quizBrain.getQuestionText(questionNumber),
+              quizBrain.getQuestionText(),
               textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.white, fontSize: 40),
             ),
@@ -59,31 +89,7 @@ class _QuizPageState extends State<QuizPage> {
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
               onPressed: () {
-                bool correctAnswer =
-                    quizBrain.getQuestionAnswer(questionNumber);
-
-                if (correctAnswer == true) {
-                  scoreKeeper.add(
-                    const Icon(
-                      Icons.check,
-                      color: Colors.green,
-                    ),
-                  );
-                } else {
-                  scoreKeeper.add(
-                    const Icon(
-                      Icons.close,
-                      color: Colors.red,
-                    ),
-                  );
-                }
-
-                setState(() {
-                  questionNumber++;
-                  if (questionNumber > (quizBrain.getQuizLength() - 1)) {
-                    questionNumber = 0;
-                  }
-                });
+                checkAnswer(true);
               },
               child: const Text(
                 "True",
@@ -98,31 +104,7 @@ class _QuizPageState extends State<QuizPage> {
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               onPressed: () {
-                bool correctAnswer =
-                    quizBrain.getQuestionAnswer(questionNumber);
-
-                if (correctAnswer == false) {
-                  scoreKeeper.add(
-                    const Icon(
-                      Icons.check,
-                      color: Colors.green,
-                    ),
-                  );
-                } else {
-                  scoreKeeper.add(
-                    const Icon(
-                      Icons.close,
-                      color: Colors.red,
-                    ),
-                  );
-                }
-
-                setState(() {
-                  questionNumber++;
-                  if (questionNumber > (quizBrain.getQuizLength() - 1)) {
-                    questionNumber = 0;
-                  }
-                });
+                checkAnswer(false);
               },
               child: const Text(
                 "False",
@@ -143,9 +125,3 @@ class _QuizPageState extends State<QuizPage> {
     );
   }
 }
-
-/*
-question1: 'You can lead a cow down stairs but not up stairs.', false,
-question2: 'Approximately one quarter of human bones are in the feet.', true,
-question3: 'A slug\'s blood is green.', true,
-*/
