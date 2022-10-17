@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:quizzler/quiz_brain.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const Quizzler());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class Quizzler extends StatelessWidget {
+  const Quizzler({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,22 +24,32 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class QuizPage extends StatelessWidget {
+class QuizPage extends StatefulWidget {
   const QuizPage({super.key});
+
+  @override
+  State<QuizPage> createState() => _QuizPageState();
+}
+
+class _QuizPageState extends State<QuizPage> {
+  List<Widget> scoreKeeper = [];
+
+  int questionNumber = 0;
+
+  QuizBrain quizBrain = QuizBrain();
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Expanded(
+        Expanded(
           flex: 6,
           child: Center(
             child: Text(
-              'This is where the question text will go.',
+              quizBrain.getQuestionText(questionNumber),
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white, fontSize: 20),
+              style: const TextStyle(color: Colors.white, fontSize: 40),
             ),
           ),
         ),
@@ -47,7 +58,33 @@ class QuizPage extends StatelessWidget {
             padding: const EdgeInsets.all(15.0),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              onPressed: () {},
+              onPressed: () {
+                bool correctAnswer =
+                    quizBrain.getQuestionAnswer(questionNumber);
+
+                if (correctAnswer == true) {
+                  scoreKeeper.add(
+                    const Icon(
+                      Icons.check,
+                      color: Colors.green,
+                    ),
+                  );
+                } else {
+                  scoreKeeper.add(
+                    const Icon(
+                      Icons.close,
+                      color: Colors.red,
+                    ),
+                  );
+                }
+
+                setState(() {
+                  questionNumber++;
+                  if (questionNumber > (quizBrain.getQuizLength() - 1)) {
+                    questionNumber = 0;
+                  }
+                });
+              },
               child: const Text(
                 "True",
                 style: TextStyle(color: Colors.white, fontSize: 20),
@@ -60,11 +97,45 @@ class QuizPage extends StatelessWidget {
             padding: const EdgeInsets.all(15.0),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              onPressed: () {},
+              onPressed: () {
+                bool correctAnswer =
+                    quizBrain.getQuestionAnswer(questionNumber);
+
+                if (correctAnswer == false) {
+                  scoreKeeper.add(
+                    const Icon(
+                      Icons.check,
+                      color: Colors.green,
+                    ),
+                  );
+                } else {
+                  scoreKeeper.add(
+                    const Icon(
+                      Icons.close,
+                      color: Colors.red,
+                    ),
+                  );
+                }
+
+                setState(() {
+                  questionNumber++;
+                  if (questionNumber > (quizBrain.getQuizLength() - 1)) {
+                    questionNumber = 0;
+                  }
+                });
+              },
               child: const Text(
                 "False",
                 style: TextStyle(color: Colors.white, fontSize: 20),
               ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: Row(
+              children: scoreKeeper,
             ),
           ),
         )
@@ -72,3 +143,9 @@ class QuizPage extends StatelessWidget {
     );
   }
 }
+
+/*
+question1: 'You can lead a cow down stairs but not up stairs.', false,
+question2: 'Approximately one quarter of human bones are in the feet.', true,
+question3: 'A slug\'s blood is green.', true,
+*/
